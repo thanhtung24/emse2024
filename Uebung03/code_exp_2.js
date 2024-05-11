@@ -9,201 +9,69 @@
 // WICHTIG: Man sollte new_random_integer nur innerhalb  der Lambda-Funktion ausführen, also NICHT
 // an einer anderen Stelle, damit man ein reproduzierbares Experiment erhält!
 
-class CodeGenerator {
-
-    // attributes
-    classAttrs = []
-    codeHasError = false
-    format = 0
-
-    // Words
-    animals = ["dog", "cat", "elephant", "lion", "tiger", "bear", "monkey", "giraffe", "zebra", "rabbit", "snake", "crocodile", "hippopotamus", "kangaroo", "penguin", "panda", "wolf", "fox", "deer", "rhinoceros", "cheetah", "gorilla", "koala", "buffalo", "camel", "elephant", "octopus", "polarbear", "shark", "jaguar", "dolphin", "owl", "platypus", "squirrel", "turtle", "hedgehog", "flamingo", "koala", "seal", "whale", "elephant", "zebra", "giraffe", "frog", "penguin", "panda", "peacock", "parrot", "butterfly"]
-
-    methodPrefixes = ["create", "get", "is", "set", "generate", "find"]
-
-    scopes = ["public", "protected", "private"]
-
-    types = ["String", "boolean", "int", "float", "double"]
-
-
-    constructor(className, attrs_num, error, format) {
-        this.className = className
-        this.format = format
-        this.classAttrs = this.initializeClassAttrs(attrs_num)
-        this.error = error
-    }
-
-    initializeClassAttrs(attrs_num) {
-        var attrs = []
-        var i = 0;
-
-        while (i < attrs_num) {
-            var attrName = this.generateIdentifier()
-            var type = get_random_element(this.types)
-
-            var newAttr = new Attribute(attrName, type)
-
-            if (!attrs.includes(newAttr)) {
-                attrs.push(newAttr)
-                i++;
-            }
-        }
-        return attrs;
-    }
-
-    generateCode() {
-        var code = ""
-        var error = 0
-
-        // Class name
-        code += "class " + this.className + " {\n" + "\n"
-
-        // Attrs
-        code += this.generateAttrs()
-
-        if (this.codeHasError) {
-            error = get_random_int(1, 2)
-        }
-
-        if (error == 1) {
-            // Constructor
-            code += modifyCode(this.generateConstructor())
-            // Methods
-            code += this.generateMethods()
-        } else {
-            code += this.generateConstructor()
-            code += modifyCode(this.generateMethods())
-        }
-
-        code += "}"
-
-        return code
-    }
-
-    // Class attributes
-    generateAttrs() {
-        var attrs = ""
-        var tab = "  "
-        var lb = "\n"
-
-        for (var attr of this.classAttrs) {
-            attrs += tab + attr.type + " " + attr.name + ";" + lb
-        }
-
-        return attrs + lb;
-    }
-
-    // Constructor
-    generateConstructor() {
-        var cons = ""
-        var tab = "  "
-        var lb = "\n"
-
-        // Cons scope
-        var consScope = get_random_element(this.scopes)
-
-        // Cons name
-        var consName = this.className
-
-        cons += tab + consScope + " " + consName
-        cons += "("
-
-        for (var attr of this.classAttrs) {
-            cons += attr.type + " " + attr.name
-            if (this.classAttrs.indexOf(attr) != this.classAttrs.length - 1) {
-                cons += ", "
-            }
-        }
-
-        cons += ")" + " {" + lb
-
-        // Cons body
-        for (var attr of this.classAttrs) {
-            cons += tab + tab + "this." + attr.name + " = " + attr.name + ";" + lb
-        }
-        cons += tab + "}" + lb + lb
-
-        return cons
-    }
-
-    // Methods
-    generateMethods() {
-        var methods = ""
-        var tab = "  "
-        var lb = "\n"
-
-
-        if (this.format == "CamelCase") {
-            for (var attr of this.classAttrs) {
-                // Getter
-                methods += tab + get_random_element(this.scopes) + " " + attr.type + " get" + capitalize_first_letter(attr.name) + "() {" + lb
-                methods += tab + tab + "return this." + attr.name + ";" + lb
-                methods += tab + "}" + lb + lb
-
-                // Setter
-                methods += tab + get_random_element(this.scopes) + " void " + "set" + capitalize_first_letter(attr.name) + "(" + attr.type + " " + attr.name + ") " + " {" + lb
-                methods += tab + tab + "this." + attr.name + " = " + attr.name + ";" + lb
-                methods += tab + "}" + lb + lb
-            }
-        } else {
-            for (var attr of this.classAttrs) {
-                // Getter
-                methods += tab + get_random_element(this.scopes) + " " + attr.type + " get_" + attr.name + "() {" + lb
-                methods += tab + tab + "return this." + attr.name + ";" + lb
-                methods += tab + "}" + lb + lb
-
-                // Setter
-                methods += tab + get_random_element(this.scopes) + " void " + "set_" + attr.name + "(" + attr.type + " " + attr.name + ") " + " {" + lb
-                methods += tab + tab + "this." + attr.name + " = " + attr.name + ";" + lb
-                methods += tab + "}" + lb + lb
-            }
-        }
-        return methods + lb
-    }
-
-    generateIdentifier() {
-        var identifier_words_num = get_random_int(1, 3)
-        var identifer = ""
-
-        if (this.format === "CamelCase") {
-            for (var i = 0; i < identifier_words_num; i++) {
-                if (i == identifier_words_num || identifier_words_num == 1) {
-                    identifer += get_random_element(this.animals)
-                } else {
-                    identifer += capitalize_first_letter(get_random_element(this.animals))
-                }
-            }
-        } else {
-            while (identifier_words_num > 0) {
-                if (identifier_words_num == 1) {
-                    identifer += get_random_element(this.animals)
-                } else {
-                    identifer += get_random_element(this.animals) + "_"
-                }
-
-                identifier_words_num--
-            }
-        }
-        return identifer
-    }
-}
-
-class Attribute {
-    constructor(name, type) {
-        this.name = name
-        this.type = type
-    }
-}
-
-function createRandomCode(error_in_code, format) {
-    if (error_in_code == 1) {
-        return new CodeGenerator("TestClass", 2, true, format).generateCode();
-    } else {
-        return new CodeGenerator("TestClass", 2, false, format).generateCode();
-    }
-}
-
 // Das hier ist die eigentliche Experimentdefinition
+
+function createTask(parameter_num, parameter_length, format) {
+    animals = ["dog", "cat", "elephant", "lion", "tiger", "bear", "monkey", "giraffe", "zebra", "rabbit", "snake", "crocodile", "hippopotamus", "kangaroo", "penguin", "panda", "wolf", "fox", "deer", "rhinoceros", "cheetah", "gorilla", "koala", "buffalo", "camel", "elephant", "octopus", "polarbear", "shark", "jaguar", "dolphin", "owl", "platypus", "squirrel", "turtle", "hedgehog", "flamingo", "koala", "seal", "whale", "elephant", "zebra", "giraffe", "frog", "penguin", "panda", "peacock", "parrot", "butterfly"]
+    methodPrefixes = ["create", "get", "is", "set", "generate", "find"]
+    scopes = ["public", "protected", "private"]
+    types = ["String", "boolean", "int", "float", "double"]
+    task = ""
+
+    // Method definition
+    task += get_random_element(scopes) + " " + get_random_element(types) + " " + get_random_element(methodPrefixes)
+
+    if (format == "CamelCase") {
+        // Name
+        task += capitalize_first_letter(get_random_element(animals))
+        task += "("
+
+        // Parameter
+        while (parameter_num > 0) {
+            task += get_random_element(types) + " "
+            task += createIdentifier(parameter_length, format)
+            if (parameter_num != 1) {
+                task += ", "
+            }
+            parameter_num--
+        }
+        task += ")"
+    } else {
+        // Name
+        task += "_" + get_random_element(animals)
+        task += "("
+
+        // Parameter
+        while (parameter_num > 0) {
+            task += get_random_element(types) + " "
+            task += createIdentifier(parameter_length, format)
+            if (parameter_num != 1) {
+                task += ", "
+            }
+            parameter_num--
+        }
+        task += ")"
+    }
+
+    return task
+}
+
+function createIdentifier(words_num, format) {
+    identifier = ""
+
+    if (format == "CamelCase") {
+        for (var i = 0; i < words_num; i++) {
+            identifier += (i == 0) ? get_random_element(animals) : capitalize_first_letter(get_random_element(animals))
+        }
+    } else {
+        for (var i = 0; i < words_num; i++) {
+            identifier += (i == 0) ? get_random_element(animals) : "_" + get_random_element(animals)
+        }
+    }
+
+    return identifier
+}
+
 document.experiment_definition(
     {
         experiment_name: "Stefan First Trial",
@@ -215,7 +83,7 @@ document.experiment_definition(
             { variable: "Format", treatments: ["CamelCase", "Snake_case"] }
         ],
         repetitions: 10,                    // Anzahl der Wiederholungen pro Treatmentcombination
-        accepted_responses: ["1", "2"], // Tasten, die vom Experiment als Eingabe akzeptiert werden
+        accepted_responses: ["1", "2", "3", "4", "5", "6"], // Tasten, die vom Experiment als Eingabe akzeptiert werden
         task_configuration: (t) => {
             // Das hier ist der Code, der jeder Task im Experiment den Code zuweist.
             // Im Feld code steht der Quellcode, der angezeigt wird,
@@ -227,14 +95,13 @@ document.experiment_definition(
             //     variable - Ein Variable-Objekt, welches das Feld name hat (der Name der Variablen);
             //     value - Ein String, in dem der Wert des Treatments steht.
 
-            t.expected_answer = "" + get_random_int(1, 9);
+            t.expected_answer = get_random_int(1, 6);
+            var parameter_length = get_random_int(1, 5)
 
             if (t.treatment_combination[0].value == "CamelCase") {
-                t.expected_answer = get_random_int(1, 2)
-                t.code = createRandomCode(t.expected_answer, "CamelCase")
+                t.code = createTask(t.expected_answer, parameter_length, "CamelCase")
             } else {
-                t.expected_answer = get_random_int(1, 2)
-                t.code = createRandomCode(t.expected_answer, "SnakeCase")
+                t.code = createTask(t.expected_answer, parameter_length, "SnakeCase")
             }
 
             // im Feld after_task_string steht eine Lambda-Funktion, die ausgeführt wird
@@ -256,23 +123,4 @@ function capitalize_first_letter(str) {
 
 function get_random_element(array) {
     return array[get_random_int(0, array.length)]
-}
-
-function modifyCode(code) {
-    var modifiedCode = code
-    modifiedCode = removeCharAtIndex(code, get_random_int(0, code.length))
-
-
-    return modifiedCode
-}
-
-function removeCharAtIndex(str, index) {
-    if (index < 0 || index >= str.length || str[index] == "") {
-        return "noCharRemoved";
-    }
-
-    var beforeChar = str.slice(0, index);
-    var afterChar = str.slice(index + 1);
-
-    return beforeChar + afterChar;
 }
