@@ -1,0 +1,14 @@
+class Test {
+    attr1
+    attr2
+    attr3
+
+    public Test {
+        ...
+    }
+
+    get...
+    set...
+    create(p1,p2,p3)  
+
+}

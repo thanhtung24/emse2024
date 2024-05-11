@@ -1,0 +1,9 @@
+Format;expected_answer;given_answer;is_correct;time_in_milliseconds;
+CamelCase;2;2;true;1124;
+CamelCase;2;2;true;756;
+Snake_case;4;4;true;1098;
+CamelCase;4;4;true;1080;
+CamelCase;8;9;false;3451;
+Snake_case;2;2;true;1319;
+Snake_case;5;5;true;1704;
+Snake_case;2;2;true;870;
