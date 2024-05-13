@@ -13,7 +13,6 @@ class CodeGenerator {
 
     // attributes
     classAttrs = []
-    codeHasError = false
     format = 0
 
     // Words
@@ -26,11 +25,11 @@ class CodeGenerator {
     types = ["String", "boolean", "int", "float", "double"]
 
 
-    constructor(className, attrs_num, error, format) {
+    constructor(className, attrs_num, codeHasError, format) {
         this.className = className
         this.format = format
+        this.codeHasError = codeHasError
         this.classAttrs = this.initializeClassAttrs(attrs_num)
-        this.error = error
     }
 
     initializeClassAttrs(attrs_num) {
@@ -53,7 +52,6 @@ class CodeGenerator {
 
     generateCode() {
         var code = ""
-        var error = 0
 
         // Class name
         code += "class " + this.className + " {\n" + "\n"
@@ -62,20 +60,23 @@ class CodeGenerator {
         code += this.generateAttrs()
 
         if (this.codeHasError) {
-            error = get_random_int(1, 2)
+            this.error = get_random_int(1, 2)
         }
 
-        if (error == 1) {
-            // Constructor
-            code += modifyCode(this.generateConstructor())
-            // Methods
-            code += this.generateMethods()
+        // Constructor
+        var constructor = this.generateConstructor()
+        // Methods
+        var methods = this.generateMethods()
+
+        if (this.codeHasError) {
+            code += modifyCode(constructor + methods)
         } else {
-            code += this.generateConstructor()
-            code += modifyCode(this.generateMethods())
+            code += constructor + methods
         }
 
         code += "}"
+
+
 
         return code
     }
@@ -167,7 +168,7 @@ class CodeGenerator {
 
         if (this.format === "CamelCase") {
             for (var i = 0; i < identifier_words_num; i++) {
-                if (i == identifier_words_num || identifier_words_num == 1) {
+                if (i == 0 || identifier_words_num == 1) {
                     identifer += get_random_element(this.animals)
                 } else {
                     identifer += capitalize_first_letter(get_random_element(this.animals))
@@ -260,14 +261,20 @@ function get_random_element(array) {
 
 function modifyCode(code) {
     var modifiedCode = code
-    modifiedCode = removeCharAtIndex(code, get_random_int(0, code.length))
 
+    while (true) {
+        modifiedCode = removeCharAtIndex(code, get_random_int(0, code.length))
+        if (modifiedCode != "noCharRemoved") {
+            break
+        }
+        modifiedCode = code
+    }
 
     return modifiedCode
 }
 
 function removeCharAtIndex(str, index) {
-    if (index < 0 || index >= str.length || str[index] == "") {
+    if (index < 0 || index >= str.length || str[index] == " " || str[index] == "\n") {
         return "noCharRemoved";
     }
 
