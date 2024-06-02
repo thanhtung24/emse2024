@@ -82,7 +82,7 @@ document.experiment_definition(
         layout: [
             { variable: "Format", treatments: ["CamelCase", "Snake_case"] }
         ],
-        repetitions: 10,                    // Anzahl der Wiederholungen pro Treatmentcombination
+        repetitions: 20,                    // Anzahl der Wiederholungen pro Treatmentcombination
         accepted_responses: ["1", "2", "3", "4", "5", "6"], // Tasten, die vom Experiment als Eingabe akzeptiert werden
         task_configuration: (t) => {
             // Das hier ist der Code, der jeder Task im Experiment den Code zuweist.
